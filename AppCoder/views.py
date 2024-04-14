@@ -3,6 +3,8 @@ from AppCoder.models import Curso, Alumnos, Profesores
 from django.http import HttpResponse
 from django.template import loader
 from AppCoder.forms import Curso_formulario, Alumnos_formulario, Profesores_formulario
+from django.contrib import AuthenticationForm, UserCreationForm
+from django.contrib.auth import login, authenticate
 
 # Create your views here.
 
@@ -259,3 +261,11 @@ def editar_profesor(request , id):
         formulario = Profesores_formulario(initial={"nombre":profesor.nombre , "apellido":profesor.apellido, "camada":profesor.camada , "curso":profesor.curso})
     
     return render( request , "editar_profesor.html" , {"formulario": formulario , "profesor":profesor})
+
+
+def login_request(request):
+    if request.method == "POST":
+        pass
+    
+    form = AuthenticationForm()
+    return render( request, "login.html" , {"form":form})
