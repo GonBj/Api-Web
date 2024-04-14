@@ -2,8 +2,8 @@ from django.shortcuts import render
 from AppCoder.models import Curso, Alumnos, Profesores
 from django.http import HttpResponse
 from django.template import loader
-from AppCoder.forms import Curso_formulario, Alumnos_formulario, Profesores_formulario
-from django.contrib import AuthenticationForm, UserCreationForm
+from AppCoder.forms import Curso_formulario, Alumnos_formulario, Profesores_formulario, UserEditForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, authenticate
 
 # Create your views here.
@@ -263,9 +263,50 @@ def editar_profesor(request , id):
     return render( request , "editar_profesor.html" , {"formulario": formulario , "profesor":profesor})
 
 
+
 def login_request(request):
+
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            usuario = form.cleaned_data.get("username")
+            contra = form.cleaned_data.get("password")
+            user = authenticate(username=usuario , password=contra)
+
+            if user is not None:
+                login(request , user )
+                return render( request , "inicio.html" , {"mensaje":f"Bienvenido/a {usuario}"})
+            else:
+                return HttpResponse(f"Usuario no encontrado")
+        else:
+            return HttpResponse(f"FORM INCORRECTO {form}")
+
+ 
+
+    form = AuthenticationForm()
+
+    return render( request , "login.html" , {"form":form})
+
+
+def register(request):
+    if request.method =="POST":
+        form = UserCreationForm(request.POST)
+        
+        if form.is_valid():
+           form.save()
+           return HttpResponse("Usuario creado")
+    
+    else:
+        form = UserCreationForm()
+    return render(request , "registro.html", {"form":form})
+
+
+
+def editarPerfil(request):
+    usuario = request.user
     if request.method == "POST":
         pass
-    
-    form = AuthenticationForm()
-    return render( request, "login.html" , {"form":form})
+
+    else:
+        miFormulario = UserEditForm(initial={'email':usuario.email})
+    return render( request , "editarperfil.html", {"miFormulario":miFormulario, "usuario":usuario})
